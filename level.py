@@ -1,34 +1,31 @@
 import pygame
-from pygame.constants import SCRAP_SELECTION
-from settings import *
-from game_data import levels
-
-
+from tiles import Tile
+from settings import tile_size
+from player import Player
 class Level:
-    def __init__(self, current_level, surface, create_overworld):
-
-        # level setup
+    def __init__(self,level_data,surface):
+        #level setup
         self.display_surface = surface
-        self.current_level = current_level
-        level_data = levels[current_level]
-        level_contenet = level_data["content"]
-        self.new_max_level = level_data["unlock"]
-        self.create_overworld = create_overworld
+        self.setup_level (level_data) 
+        self.world_shift = 0
 
-        # level display
-        self.font = pygame.font.Font(None, 40)
-        self.text_surf = self.font.render(level_contenet, True, "White")
-        self.text_rect = self.text_surf.get_rect(
-            center=(screen_width / 2, screen_height / 2)
-        )
+    def setup_level(self,layout):
+        self.tiles = pygame.sprite.Group()
+        self.player = pygame.sprite.GroupSingle()
+        for row_index,row in enumerate(layout):
+            for col_index,cell in enumerate(row):
+                x = col_index*tile_size
+                y = row_index*tile_size
+                if cell == 'X': 
+                    
+                    tile = Tile((x,y),tile_size)
+                    self.tiles.add(tile)
+                if cell == 'P': 
+                    player_sprite = Player((x,y))
+                    self.player.add(player_sprite)
 
-    def input(self):
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_RETURN]:
-            self.create_overworld(self.current_level, self.new_max_level)
-        if keys[pygame.K_ESCAPE]:
-            self.create_overworld(self.current_level, 0)
 
     def run(self):
-        self.input()
-        self.display_surface.blit(self.text_surf, self.text_rect)
+        self.tiles.update(self.world_shift)
+        self.player.draw(self.display_surface)
+        self.tiles.draw(self.display_surface)
