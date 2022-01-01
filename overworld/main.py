@@ -1,7 +1,7 @@
 import pygame, sys
 from settings import *
 from overworld import Overworld
-from level2 import Level
+from level import Level
 
 pygame.init()
 
